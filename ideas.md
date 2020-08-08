@@ -79,3 +79,7 @@ brute force method - algorithmically easy, computationally a disaster (>3^n poss
 1   5   10
 
 *use viterbi algorithm*
+
+### 8/3/20
+- each write a few melodies, and then both of us harmonize it, explaining our thought process as we do it
+- adam neely talks about ai leaving areas blank when it doesn't know what to put there. maybe we could incorporate something like that, i.e. if there's a unit of harmonic rhythm that does not have a clearly winning chord, we just extend the harmony from the previous measure. 
