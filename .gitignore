@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 proposal.pages
+.vscode
+test.py

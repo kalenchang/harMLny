@@ -83,3 +83,10 @@ brute force method - algorithmically easy, computationally a disaster (>3^n poss
 ### 8/3/20
 - each write a few melodies, and then both of us harmonize it, explaining our thought process as we do it
 - adam neely talks about ai leaving areas blank when it doesn't know what to put there. maybe we could incorporate something like that, i.e. if there's a unit of harmonic rhythm that does not have a clearly winning chord, we just extend the harmony from the previous measure. 
+
+### 8/9/20
+- della ventura: harmonization as hidden markov model, but harmonic analyses necessary to train model (get transition matrix)
+- how to get harmonic analyses?
+  - check out existing software such as rubato, melisma
+  - is harmonic analysis data required to train an analyzer
+  - if we use algorithms already created by music theory textbooks, for ex, then we wouldn't need data
