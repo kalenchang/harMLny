@@ -131,3 +131,5 @@ dmypy.json
 proposal.pages
 .vscode
 *.mscz,
+.DS_Store
+.idea
