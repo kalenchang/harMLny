@@ -1,0 +1,82 @@
+previous_function_calls = []
+
+all_paths_to(the_node):
+    value = [
+        previous_function_calls(node) or all_paths_to(node) \
+            + path(node, the_node) \
+                for node in nodes_left_of(the_node)]
+    previous_function_calls[the_node] = value
+    return value
+
+
+
+
+pseudocode for generating notes and arrows:
+
+# note: need to add an empty measure beforehand, and one after
+for cfmeasure in cfline.getElementsByClass('Measure'):
+    cfmeasureNumber = getmeasurenumber(cfmeasure)
+    
+    cpNotePossibilities[cfmeasureNumber - 1] = []
+    cpArrowPossibilities[cfmeasureNumber - 2] = []
+    
+    if cfmeasureNumber == 1:
+        cpNotePossibilities[cfmeasureNumber - 1].append(unison)
+        cpNotePossibilities[cfmeasureNumber - 1].append(fifth)
+        cpNotePossibilities[cfmeasureNumber - 1].append(octave)
+    elif cfmeasureNumber == last:
+        cpNotePossibilities[cfmeasureNumber - 1].append(unison)
+        cpNotePossibilities[cfmeasureNumber - 1].append(octave)
+        
+        # only allow melodic steps
+        for currentNote in cpNotePossibilities[cfmeasureNumber - 1]:
+            for previousNote in cpNotePossibilities[cfmeasureNumber - 2]:
+                if isStep(note1, note2):
+                    cpArrowPossibilities[cfmeasureNumber - 2].append((previousNote, currentNote))
+        # how to avoid parallel??
+        
+    else:
+        cpNotePossibilities[cfmeasureNumber - 1].append(minor third)
+        cpNotePossibilities[cfmeasureNumber - 1].append(major third)
+        cpNotePossibilities[cfmeasureNumber - 1].append(fourth)
+        cpNotePossibilities[cfmeasureNumber - 1].append(fifth)
+        cpNotePossibilities[cfmeasureNumber - 1].append(minor sixth)
+        cpNotePossibilities[cfmeasureNumber - 1].append(major sixth)
+        cpNotePossibilities[cfmeasureNumber - 1].append(octave)
+        cpNotePossibilities[cfmeasureNumber - 1].append(minor tenth)
+        cpNotePossibilities[cfmeasureNumber - 1].append(major tenth)
+        
+        # only allow certain melodic intervals
+        for currentNote in cpNotePossibilities[cfmeasureNumber - 1]:
+            currentHarmonicInterval = interval(currentCF, currentNote)
+            for previousNote in cpNotePossibilities[cfmeasureNumber - 2]:
+                previousHarmonicInterval = interval(previousCF, previousNote)
+                cfMelodicInterval = interval(previousCF, currentCF)
+                cpMelodicInterval = interval(previousNote, currentNote)
+                
+                if isValidMelodicInterval(previousNote, currentNote) 
+                and isNotForbiddenParallel(previousHarmonicInterval, currentHarmonicInterval)
+                and isNotHiddenParallel(cfMelodicInterval, cpMelodicInterval, currentHarmonicInterval)
+                and isNotSimilarSkip(cfMelodicInterval, cpMelodicInterval):
+                    cpArrowPossibilities[cfmeasureNumber - 2].append((note1, note2))
+        
+
+
+    cp.append(cpmeasure)
+def isValidMelodicInterval(note1, note2):
+    return interval(note1, note2) == 4th, 5th, 8ve, M2, m2, M3, m3, or ascending m6
+    
+def isNotForbiddenParallel(prevInt, currInt):
+    if prevInt != currInt:
+        return true
+    else:
+        return not currInt in (4th, 5th, 8ve)
+        
+def isNotHiddenParallel(cfInt, cpInt, harmInt):
+    if harmInt in (5th, 8ve) and direction(cfInt) == direction(cpInt):
+        return cfInt == 2nd or cpInt == 2nd
+    else:
+        return true
+        
+def isNotSimilarSkip(cfInt, cpInt):
+    return not (cfInt != 2nd and cpInt != 2nd and direction(cfInt) == direction(cpInt))

@@ -7,9 +7,11 @@ def isNotForbiddenParallel(prevInt, currInt):
     else:
         return currInt.name not in ('P4', 'P5', 'P8')
 
-def isValidMelodicInterval(iv): #interval
+
+def isValidMelodicInterval(iv):  #interval
     return iv.name in ('P4', 'P5', 'P8', 'm2', 'M2', 'm3', 'M3') or iv.semitones == 8
     # needs to count semitones for ASCENDING m6 only
+
 
 def isNotHiddenParallel(cfInt, cpInt, harmInt):
     # check if cfInt and cpInt are in the same direction (similar motion)
@@ -18,10 +20,16 @@ def isNotHiddenParallel(cfInt, cpInt, harmInt):
     else:
         return True
 
+
 def isNotSimilarSkip(cfInt, cpInt):
     return cfInt.isStep or cpInt.isStep or cfInt.semitones * cpInt.semitones <= 0
 
-def determineFirstSpecies(cfLine):
+
+def isInKey(scale, note):
+    return (note.name in scale)
+
+
+def determineFirstSpecies(cfLine, cfScale):
     cp = stream.Part()
     piano = instrument.Piano()
     cp.insert(0, piano)
@@ -59,15 +67,19 @@ def determineFirstSpecies(cfLine):
                             and isNotForbiddenParallel(harmIntPrevious, harmIntCurrent):
                         cpArrowPoss[cfMeasureNumber - 2].append((cpPrevious, cpCurrent))
         else:
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('m3'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('M3'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('p4'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('p5'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('m6'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('M6'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('p8'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('m10'))
-            cpNotePoss[cfMeasureNumber - 1].append(cfNote.transpose('M10'))
+            melIntNotes = [cfNote.transpose('m3'), 
+                cfNote.transpose('M3'), 
+                cfNote.transpose('P4'), 
+                cfNote.transpose('P5'), 
+                cfNote.transpose('m6'), 
+                cfNote.transpose('M6'), 
+                cfNote.transpose('P8'), 
+                cfNote.transpose('m10'), 
+                cfNote.transpose('M10')
+            ]
+            for melintnote in melIntNotes:
+                if isInKey(cfScale, melintnote):
+                    cpNotePoss[cfMeasureNumber - 1].append(melintnote)
 
             # only allow certain melodic intervals
             for cpCurrent in cpNotePoss[cfMeasureNumber - 1]:
@@ -77,12 +89,33 @@ def determineFirstSpecies(cfLine):
                     cfMelodicInterval = interval.Interval(noteStart=cfPrevious, noteEnd=cfNote)
                     cpMelodicInterval = interval.Interval(noteStart=cpPrevious, noteEnd=cpCurrent)
 
-                    if isValidMelodicInterval(cfMelodicInterval) \
+                    if isValidMelodicInterval(cpMelodicInterval) \
                             and isNotForbiddenParallel(harmIntPrevious, harmIntCurrent) \
                             and isNotHiddenParallel(cfMelodicInterval, cpMelodicInterval, harmIntCurrent) \
                             and isNotSimilarSkip(cfMelodicInterval, cpMelodicInterval):
                         cpArrowPoss[cfMeasureNumber - 2].append((cpPrevious, cpCurrent))
 
+    # find all paths
+    # pathsFound is a list of dictionaries. first list corresponds to the measures, the dictionary corresponds to the notes in cpNotePoss
+    pathsFound = []
+    for measurenumber in range(len(cpNotePoss)):
+        pathsFound.append({})
+        for noten in cpNotePoss[measurenumber]:
+            paths = []
+            if measurenumber == 0:
+                paths = [[noten]]
+            else:
+                for arrow in cpArrowPoss[measurenumber-1]:
+                    if noten == arrow[1]:
+                        for path in pathsFound[measurenumber-1][(arrow[0].name + str(arrow[0].octave))]:
+                            paths.append(path+[noten])
+            pathsFound[measurenumber][(noten.name + str(noten.octave))] = paths
+    
+    for pathlist in pathsFound[len(cpNotePoss) - 1].values():
+        for path in pathlist:
+            print('[' + ', '.join([notem.name for notem in path]) + ']')
+
+    '''
         print(cfNote.name + ': ', end='')
         for cpNP in cpNotePoss[cfMeasureNumber - 1]:
             print(cpNP.name + ', ', end='')
@@ -92,74 +125,6 @@ def determineFirstSpecies(cfLine):
                 print(cpAP[0].name + '->' + cpAP[1].name, end=' ')
         print()
 
-    '''
-    # note: need to add an empty measure beforehand, and one after
-    for cfmeasure in cfline.getElementsByClass('Measure'):
-        cfmeasureNumber = getmeasurenumber(cfmeasure)
-        
-        cpNotePossibilities[cfmeasureNumber - 1] = []
-        cpArrowPossibilities[cfmeasureNumber - 2] = []
-        
-        if cfmeasureNumber == 1:
-            cpNotePossibilities[cfmeasureNumber - 1].append(unison)
-            cpNotePossibilities[cfmeasureNumber - 1].append(fifth)
-            cpNotePossibilities[cfmeasureNumber - 1].append(octave)
-        elif cfmeasureNumber == last:
-            cpNotePossibilities[cfmeasureNumber - 1].append(unison)
-            cpNotePossibilities[cfmeasureNumber - 1].append(octave)
-            
-            # only allow melodic steps
-            for currentNote in cpNotePossibilities[cfmeasureNumber - 1]:
-                for previousNote in cpNotePossibilities[cfmeasureNumber - 2]:
-                    if isStep(note1, note2):
-                        cpArrowPossibilities[cfmeasureNumber - 2].append((previousNote, currentNote))
-            # how to avoid parallel??
-            
-        else:
-            cpNotePossibilities[cfmeasureNumber - 1].append(minor third)
-            cpNotePossibilities[cfmeasureNumber - 1].append(major third)
-            cpNotePossibilities[cfmeasureNumber - 1].append(fourth)
-            cpNotePossibilities[cfmeasureNumber - 1].append(fifth)
-            cpNotePossibilities[cfmeasureNumber - 1].append(minor sixth)
-            cpNotePossibilities[cfmeasureNumber - 1].append(major sixth)
-            cpNotePossibilities[cfmeasureNumber - 1].append(octave)
-            cpNotePossibilities[cfmeasureNumber - 1].append(minor tenth)
-            cpNotePossibilities[cfmeasureNumber - 1].append(major tenth)
-            
-            # only allow certain melodic intervals
-            for currentNote in cpNotePossibilities[cfmeasureNumber - 1]:
-                currentHarmonicInterval = interval(currentCF, currentNote)
-                for previousNote in cpNotePossibilities[cfmeasureNumber - 2]:
-                    previousHarmonicInterval = interval(previousCF, previousNote)
-                    cfMelodicInterval = interval(previousCF, currentCF)
-                    cpMelodicInterval = interval(previousNote, currentNote)
-                    
-                    if isValidMelodicInterval(previousNote, currentNote) 
-                    and isNotForbiddenParallel(previousHarmonicInterval, currentHarmonicInterval)
-                    and isNotHiddenParallel(cfMelodicInterval, cpMelodicInterval, currentHarmonicInterval)
-                    and isNotSimilarSkip(cfMelodicInterval, cpMelodicInterval):
-                        cpArrowPossibilities[cfmeasureNumber - 2].append((note1, note2))
-            
-
-
-        cp.append(cpmeasure)
-    def isValidMelodicInterval(note1, note2):
-        return interval(note1, note2) == 4th, 5th, 8ve, M2, m2, M3, m3, or ascending m6
-        
-    def isNotForbiddenParallel(prevInt, currInt):
-        if prevInt != currInt:
-            return true
-        else:
-            return not currInt in (4th, 5th, 8ve)
-            
-    def isNotHiddenParallel(cfInt, cpInt, harmInt):
-        if harmInt in (5th, 8ve) and direction(cfInt) == direction(cpInt):
-            return cfInt == 2nd or cpInt == 2nd
-        else:
-            return true
-            
-    def isNotSimilarSkip(cfInt, cpInt):
-        return not (cfInt != 2nd and cpInt != 2nd and direction(cfInt) == direction(cpInt))
     
     noteList = []
 
@@ -174,7 +139,9 @@ def determineFirstSpecies(cfLine):
     return cp
     '''
 
-source = converter.parse('cf.mxl')
+cmajorscale = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+
+source = converter.parse('cpt/cf3.mxl')
 # source.show('text')
 
 # cantus firmus
@@ -182,7 +149,7 @@ cf = source.parts[0]
 # print(cf)
 
 # contra punctum
-cp = determineFirstSpecies(cf)
+cp = determineFirstSpecies(cf, cmajorscale)
 
 '''
 
