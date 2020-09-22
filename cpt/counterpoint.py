@@ -15,7 +15,7 @@ def isValidMelodicInterval(iv):  #interval
 
 def isNotHiddenParallel(cfInt, cpInt, harmInt):
     # check if cfInt and cpInt are in the same direction (similar motion)
-    if harmInt.name in ('P5', 'P8') and cfInt.semitones * cpInt.semitones > 0:
+    if harmInt.name in ('P4', 'P5', 'P8') and cfInt.semitones * cpInt.semitones > 0:
         return cfInt.isStep or cpInt.isStep
     else:
         return True
@@ -27,6 +27,24 @@ def isNotSimilarSkip(cfInt, cpInt):
 
 def isInKey(scale, note):
     return (note.name in scale)
+
+
+def contraryMotionScore(cfNotes, path):
+    # cfNotes = cfLine.flat.getElementsByClass(note.Note)
+    assert len(cfNotes) == len(path) # for first species, cf and cp need to have the same number of notes
+    rawScore = 0
+    # for each two consecutive intervals that are not equal, add 1 to raw score
+    for i in range(len(cfNotes) - 1):
+        cpInterval = interval.Interval(path[i], path[i + 1])
+        cfInterval = interval.Interval(cfNotes[i], cfNotes[i + 1])
+        if (cpInterval.semitones * cfInterval.semitones < 0):
+            rawScore += 1
+    normalizedScore = rawScore / (len(cfNotes) - 1)
+    return normalizedScore
+
+
+def followSkipOppositeDirectionScore(path):
+    pass
 
 
 def determineFirstSpecies(cfLine, cfScale):
@@ -60,10 +78,10 @@ def determineFirstSpecies(cfLine, cfScale):
 
             # only allow melodic steps
             for cpCurrent in cpNotePoss[cfMeasureNumber - 1]:
-                harmIntCurrent = interval.Interval(noteStart=cfNote, noteEnd=cpCurrent)
+                harmIntCurrent = interval.Interval(cfNote, cpCurrent)
                 for cpPrevious in cpNotePoss[cfMeasureNumber - 2]:
-                    harmIntPrevious = interval.Interval(noteStart=cfPrevious, noteEnd=cpPrevious)
-                    if interval.Interval(noteStart=cpPrevious, noteEnd=cpCurrent).isStep \
+                    harmIntPrevious = interval.Interval(cfPrevious, cpPrevious)
+                    if interval.Interval(cpPrevious, cpCurrent).isStep \
                             and isNotForbiddenParallel(harmIntPrevious, harmIntCurrent):
                         cpArrowPoss[cfMeasureNumber - 2].append((cpPrevious, cpCurrent))
         else:
@@ -83,11 +101,11 @@ def determineFirstSpecies(cfLine, cfScale):
 
             # only allow certain melodic intervals
             for cpCurrent in cpNotePoss[cfMeasureNumber - 1]:
-                harmIntCurrent = interval.Interval(noteStart=cfNote, noteEnd=cpCurrent)
+                harmIntCurrent = interval.Interval(cfNote, cpCurrent)
                 for cpPrevious in cpNotePoss[cfMeasureNumber - 2]:
-                    harmIntPrevious = interval.Interval(noteStart=cfPrevious, noteEnd=cpPrevious)
-                    cfMelodicInterval = interval.Interval(noteStart=cfPrevious, noteEnd=cfNote)
-                    cpMelodicInterval = interval.Interval(noteStart=cpPrevious, noteEnd=cpCurrent)
+                    harmIntPrevious = interval.Interval(cfPrevious, cpPrevious)
+                    cfMelodicInterval = interval.Interval(cfPrevious, cfNote)
+                    cpMelodicInterval = interval.Interval(cpPrevious, cpCurrent)
 
                     if isValidMelodicInterval(cpMelodicInterval) \
                             and isNotForbiddenParallel(harmIntPrevious, harmIntCurrent) \
@@ -111,9 +129,62 @@ def determineFirstSpecies(cfLine, cfScale):
                             paths.append(path+[noten])
             pathsFound[measurenumber][(noten.name + str(noten.octave))] = paths
     
+    cfNotes = cfLine.flat.getElementsByClass(note.Note)
+
+    pathsToBeScored = []
     for pathlist in pathsFound[len(cpNotePoss) - 1].values():
         for path in pathlist:
-            print('[' + ', '.join([notem.name for notem in path]) + ']')
+            if validTwoSkips(path) and noDissonantOutline(path) and hasValidClimax(path) and noFourParallels(cfNotes, path):
+                pathsToBeScored.append(path)
+                print('[' + ', '.join([notem.name for notem in path]) + ']')
+
+
+def validTwoSkips(path):
+    return True
+
+def noDissonantOutline(path):
+    return True
+
+def findClimax(path):
+    climax = path[0]
+    for n in path[1:]:
+        testint = interval.Interval(n, climax)
+        if testint.semitones > 0:
+            climax = n
+    return climax
+
+def hasValidClimax(path):
+    climax = findClimax(path)
+    climaxCount = 0
+    for n in path:
+        if n == climax:
+            climaxCount += 1
+    return path[0] != climax and path[-1] != climax and climaxCount == 1
+
+def hasValidClimaxAlt(path):
+    climax = path[0]
+    climaxCount = 1
+    for n in path[1:]:
+        testint = interval.Interval(n, climax)
+        if testint.semitones > 0:
+            climax = n
+            climaxCount = 1
+        elif testint.semitones == 0:
+            climaxCount += 1
+    return True
+
+def noFourParallels(cfNotes, path):
+    numParallels = 0
+    for i in range(len(path)-1):
+        currInt = interval.Interval(cfNotes[i], path[i])
+        nextInt = interval.Interval(cfNotes[i+1], path[i+1])
+        if currInt.semitones == nextInt.semitones:
+            numParallels += 1
+            if numParllels > 3:
+                return False
+        else:
+            numParallels = 0
+    return True
 
     '''
         print(cfNote.name + ': ', end='')
@@ -139,24 +210,26 @@ def determineFirstSpecies(cfLine, cfScale):
     return cp
     '''
 
-cmajorscale = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+if __name__ == "__main__":
 
-source = converter.parse('cpt/cf3.mxl')
-# source.show('text')
+    cmajorscale = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
-# cantus firmus
-cf = source.parts[0]
-# print(cf)
+    source = converter.parse('cpt/cf3.mxl')
+    # source.show('text')
 
-# contra punctum
-cp = determineFirstSpecies(cf, cmajorscale)
+    # cantus firmus
+    cf = source.parts[0]
+    # print(cf)
 
-'''
+    # contra punctum
+    cp = determineFirstSpecies(cf, cmajorscale)
 
-# get time signature from cf and add time signature to cp
-cp.measure(1).insert(0, cf.flat.getElementsByClass(meter.TimeSignature)[0])
+    '''
 
-source.insert(0, cp)
-'''
-# source.show('text')
-# source.show()
+    # get time signature from cf and add time signature to cp
+    cp.measure(1).insert(0, cf.flat.getElementsByClass(meter.TimeSignature)[0])
+
+    source.insert(0, cp)
+    '''
+    # source.show('text')
+    # source.show()
