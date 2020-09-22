@@ -1,0 +1,28 @@
+rules we already incorporated (strict short term rules)
+- final approached by step
+- permitted melodic intervals
+- begin and end on perfect consonance
+- no parallel/direct perfects
+- stay w/in 10th of cf
+- begin/end on 1st/8ve, if cpt above, can start on 5th
+- no unisons except begin/end
+- avoid parallel/hidden fifths/octaves, no parallel 4ths
+- no similar skips
+- avoid dissonant harmonic intervals
+
+strict long term rules
+- * if there are 2 skips in same direction, second must be smaller than first
+- * if there are 2 skips in same direction, larger interval must be consonant
+- * if there are 2 skips in same direction, 3 notes should be from the same triad or should not outline more than an octave
+- no interval of tritone and 7th in 3 melodic notes
+- must have unique global max, not on first or last note
+- from any local min to any local max (or vice versa), the interval cannot be 7th
+- do not use an interval 4+ times in a row
+
+lenient short term rules
+- contrary motion should DOMINATE
+
+lenient long term rules
+- avoid writing 2 skips in same direction (but if you do, see *)
+- follow skip in opposite direction
+- climax should be near middle
