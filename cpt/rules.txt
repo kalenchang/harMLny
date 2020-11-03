@@ -13,7 +13,7 @@ rules we already incorporated (strict short term rules)
 strict long term rules
 - * if there are 2 skips in same direction, second must be smaller than first
 - * if there are 2 skips in same direction, larger interval must be consonant
-- * if there are 2 skips in same direction, 3 notes should be from the same triad or should not outline more than an octave
+- * if there are 2 skips in same direction, 3 notes should be from the same triad or should not outline more than an octave (gonna ignore this rule)
 - no interval of tritone and 7th in 3 melodic notes
 - must have unique global max, not on first or last note
 - from any local min to any local max (or vice versa), the interval cannot be 7th
@@ -26,3 +26,22 @@ lenient long term rules
 - avoid writing 2 skips in same direction (but if you do, see *)
 - follow skip in opposite direction
 - climax should be near middle
+
+
+NEVER MIND IGNORE THESE
+new set of rules, based on the pdf:
+
+for cantus firmus:
+- uses single major or minor key
+- begins on tonic, ends on tonic, penultimate is 7 or 2
+
+melodic line:
+- more conjunct than disjunct
+- variety over redundancy (avoid using same note over and over)
+- no more than 2 consecutive occurrences of same pitch
+- don't pull melody too much in one direction
+- single climax
+- range of melody should be between 5th and 10th
+- use notes from key
+- leading tone resolves to 1, except when stepping 1-7-6 (does not apply to b7 in minor)
+- in minor key, use melodic minor
