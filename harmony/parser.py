@@ -117,6 +117,12 @@ class Chart:
                 for word in self.words:
                     print(word + ' ' * (maxwordlength - len(word)), end=' ')
                 print('\n')
+    
+    def isvalidchart(self):
+        for constituent in self.constituents:
+            if constituent.category == 'TR' and constituent.start == 0 and constituent.end == len(self.words):
+                return True
+        return False
 
 
 # Constituent is an element of the agenda (to be considered) and chart (finalized)
@@ -185,37 +191,35 @@ DR -> DR DR
 SR -> SR SR
 TR -> t
 DR -> d
-SR -> s"""
+SR -> s
+SR -> e s"""
 
-lexiconstring = """I : t
-IV : s
-V : d
-ii : s
-vi : t
-viio : d
-C : t, s
-D : s, d
-E : t
-F : s, d
-G : t, d
-A : s, t
+lexiconstring = """C : t
+D : s
+E : e
+F : s
+G : d
+A : t
 B : d"""
 
-testgrammar = Grammar(grammarstring)
-# testgrammar.print()
-# print()
+if __name__ == "__main__":
 
-testlexicon = Lexicon(lexiconstring)
-# testlexicon.print()
-# print()
+    testgrammar = Grammar(grammarstring)
+    # testgrammar.print()
+    # print()
 
-# testsentence = "the old man man the boat on the water"
-testsentence = 'E F D C'
-testchart = Chart(testlexicon, testgrammar, testsentence)
-# testchart.printconstituents()
-# print()
-testchart.printstructure()
+    testlexicon = Lexicon(lexiconstring)
+    # testlexicon.print()
+    # print()
 
-# testsentence = "the old can hold water"
-# testchart = Chart(testlexicon, testgrammar, testsentence)
-# testchart.printstructure()
+    # testsentence = "the old man man the boat on the water"
+    testsentence = 'C E F D C'
+    testchart = Chart(testlexicon, testgrammar, testsentence)
+    # testchart.printconstituents()
+    # print()
+    # testchart.printstructure()
+    print(testchart.isvalidchart())
+
+    # testsentence = "the old can hold water"
+    # testchart = Chart(testlexicon, testgrammar, testsentence)
+    # testchart.printstructure()
