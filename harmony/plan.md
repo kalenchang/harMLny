@@ -39,3 +39,21 @@ viterbi alternative:
 - context change idea:
 - - based on Tymoczko's markov model based theory, except incorporating aspects of a hierarchical model - every "context" (eg a key) has its own probability matrix, and each context's matrix also contains probabilities for moving to other contexts. in theory this allows for generating hierarchical structures like secondary dominants and tonicizations using the markov model theory, which Tymoczko's original theory does not support.
 - - some problems for this: see whiteboard 1/21
+
+2/18/21
+possible implementations:
+1. original plan: full hierarchical structure parser (based on parser of natural language) -- too slow
+2. hybrid approach: non-diatonic chords are first checked for dependencies then resolved (deleted). remaining diatonic chords are checked against a FSM
+3. viterbi approach: first try viterbi on diatonic chords. then to implement secondary dominants, etc. add either a "gap" or something like that... like V/V serves as a V chord from the front (anything that can go to V can go to V/V) but leads to a V chord in the back
+4. context changes (see 1/21/21 above)
+progress today:
+- started implementing hybrid approach
+- finished the diatonic chord checker/fsm
+- need to fix chord generation in hybrid.py so that we can generate non-diatonic chords
+- then check for dependencies of non-diatonic chords :)
+we should also listen to a bunch of harmonizations and see what sounds "good" and what doesn't:
+- ex. alternating between 2 and 4 too much is bad, maybe should only be one way
+- 4 - 1 alternation too much is also bad, maybe only for certain cadences or something
+- too many repeated chords bad
+- too many bdim chords bad
+- etc
