@@ -29,16 +29,16 @@ new parsing plan:
 viterbi alternative:
 - instead of generating chords as names (C, D, etc.) generate them as roman numerals (I, ii, etc.) including secondary dominants, etc. like V/V, V/V/V, ...
 - then, to calculate transition possibilities (probabilities, but only 1 or 0), just check the "bottom" chord
-- - ex. X goes to Y/Z iff X goes to Z. and Y/Z goes to Z ONLY ofc.
+  - ex. X goes to Y/Z iff X goes to Z. and Y/Z goes to Z ONLY ofc.
 - then we can do a full tree traversal of all paths
 
 1/21/21
 - potential problem with above parsing plan:
-- - what if you have a chord before a tonicized phrase that is diatonic in both the original key and tonicized key, but it is ungrammatical in that position in the original key
+  - what if you have a chord before a tonicized phrase that is diatonic in both the original key and tonicized key, but it is ungrammatical in that position in the original key
 - what if we used something that's not python to be faster (or just use diff interpreter)
 - context change idea:
-- - based on Tymoczko's markov model based theory, except incorporating aspects of a hierarchical model - every "context" (eg a key) has its own probability matrix, and each context's matrix also contains probabilities for moving to other contexts. in theory this allows for generating hierarchical structures like secondary dominants and tonicizations using the markov model theory, which Tymoczko's original theory does not support.
-- - some problems for this: see whiteboard 1/21
+  - based on Tymoczko's markov model based theory, except incorporating aspects of a hierarchical model - every "context" (eg a key) has its own probability matrix, and each context's matrix also contains probabilities for moving to other contexts. in theory this allows for generating hierarchical structures like secondary dominants and tonicizations using the markov model theory, which Tymoczko's original theory does not support.
+  - some problems for this: see whiteboard 1/21
 
 2/18/21
 possible implementations:
@@ -52,8 +52,18 @@ progress today:
 - need to fix chord generation in hybrid.py so that we can generate non-diatonic chords
 - then check for dependencies of non-diatonic chords :)
 we should also listen to a bunch of harmonizations and see what sounds "good" and what doesn't:
-- ex. alternating between 2 and 4 too much is bad, maybe should only be one way
+- ex. alternating between 2 and 4 (or any two chords) too much is bad, maybe should only be one way
 - 4 - 1 alternation too much is also bad, maybe only for certain cadences or something
 - too many repeated chords bad
 - too many bdim chords bad
 - etc
+
+2/27/21
+- note for kalen: melody d to e (causes melodic/harmonic clashes)
+- fixed chord generation so it is based on scale degrees and roman numerals
+- grouped together ii/IV into S and V/viio into D
+- need to do:
+  - after scoring, create a disambiguator for the S chords and the D chords
+  - disambiguate with both melodic and harmonic cues. should be no harmonic/harmonic clashes, only melodic/harmonic clashes
+  - add non-diatonic chords!
+
