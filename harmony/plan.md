@@ -67,3 +67,13 @@ we should also listen to a bunch of harmonizations and see what sounds "good" an
   - disambiguate with both melodic and harmonic cues. should be no harmonic/harmonic clashes, only melodic/harmonic clashes
   - add non-diatonic chords!
 
+3/11/21
+- pre-disambiguation scoring
+  - avoid too many repeated chords in a row
+  - avoid alternating between the same 2 chords
+  - cadences (at least end V-I)
+- biases from random assignment:
+  - prefer V over viio
+  - 50/50 ii IV
+  - can adjust probabilities after we introduce more chords (V7, ii7, V/V, etc.)
+- next time: implement pre-disambiguation scoring
