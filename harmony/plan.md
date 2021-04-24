@@ -77,3 +77,20 @@ we should also listen to a bunch of harmonizations and see what sounds "good" an
   - 50/50 ii IV
   - can adjust probabilities after we introduce more chords (V7, ii7, V/V, etc.)
 - next time: implement pre-disambiguation scoring
+
+
+4/24/21
+- what we did today
+  - finished diatonic viterbi
+  - right now it can generate sequences of chords, but they are usually the most common, hard to get the uncommon chords
+  - can have lots of repetition/alternating between chords bc of insufficient (long-term) memory
+- idea for future
+  - check how viterbi performs with 3-grams
+  - would need to generate or collect data
+- what we want to think about
+  - can viterbi be sufficient for what we want? i.e. if we extend it
+  - can we somehow get, like, the 5 highest scoring paths in viterbi somehow (not exactly top 5, but close)
+    - if so, then we can independently rank them without short-term memory constraints
+    - what if we introduced a random number, e.g. multiply/add transition probabilites or tr_prob by random numbers, which may change the overall outcome
+  - implement derek's tonicization idea (1/21/21)
+  - would be interesting to compare viterbi w context changing to hierarchical fsms
