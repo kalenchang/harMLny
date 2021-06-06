@@ -93,4 +93,35 @@ we should also listen to a bunch of harmonizations and see what sounds "good" an
     - if so, then we can independently rank them without short-term memory constraints
     - what if we introduced a random number, e.g. multiply/add transition probabilites or tr_prob by random numbers, which may change the overall outcome
   - implement derek's tonicization idea (1/21/21)
+  - what if we simplified the contexts even more, to only I/ii/V/vi maybe, and to get anything else you have to context change (e.g. iii is ii/ii)
   - would be interesting to compare viterbi w context changing to hierarchical fsms
+
+6/4/21
+- last week we talked about: parsing
+- top-down vs bottom-up vs other approaches, etc.
+- the problem we are facing is not that parsing is slow, it's that we have too many possibilities
+- as the melody gets longer, the number of valid parses increases (exponentially?) and the number of parses we have to parse AND rank later on increases
+- so the problem isnt necessarily parsing faster, but to reduce the number of valid parses somehow
+- some theoretical approaches:
+  - constrain the grammar (reduce number of parses)
+  - use t s d instead of numbers
+  - break down the melody into subphrases which are sequences of tsdt
+    - eg. ii-IV alternation for s happens locally within tsd phrase (the reason we get exponential possibilities is because ii-IV alternation possible for each tsd)
+- some engineering approaches:
+  - introduce randomness (could be informed randomness)
+  - limit the melody to a certain length
+  - randomly eliminate 1/2 or so of the parses, or just randomly select 100 to evaluate and rank
+  - modified viterbi: (random)
+    - instead of choosing the chord with highest probability/score at each step, you just generate all valid (p > 0) transitions, and then at the end, randomly choose a sequence of transitions that works (or 100) (see fig 1). need to prune dead-ends from the back before beginning
+    - ~~or: we just run the normal viterbi algorithm but instead of choosing the highest prob at each point, just choose a random one~~
+      - doesn't work because viterbi does not choose at each point, it creates chains of prevs to the end, and at that point it chooses one path
+- some areas to reduce size of problem:
+  - some parses are minimally similar. eg. I IV V I vs I ii V I
+- idea for future: cadences
+
+```
+fig. 1
+(1, 2, 3) x (4, 5, 6) x (7, 8, 9) x ... n times
+3^n sequences
+3^2 * (n-1) transitions
+```
