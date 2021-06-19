@@ -23,11 +23,21 @@ trans_p = {
     "IV": {"I": 0.24, "ii": 0.12, "iii": 0, "IV": 0.1, "V": 0.29, "vi": 0, "viio": 0.18},
     "V": {"I": 0.67, "ii": 0, "iii": 0, "IV": 0, "V": 0.15, "vi": 0.11, "viio": 0},
     "vi": {"I": 0.11, "ii": 0.22, "iii": 0, "IV": 0.18, "V": 0.21, "vi": 0.1, "viio": 0.11},
+    "viio": {"I": 0.81, "ii": 0, "iii": 0, "IV": 0, "V": 0.06, "vi": 0, "viio": 0}
+}
+
+new_trans_p = {
+    "I": {"I": 0.23, "ii": 0.11, "iii": 0, "IV": 0.22, "V": 0.31, "vi": 0.08, "viio": 0.02},
+    "ii": {"I": 0, "ii": 0.14, "iii": 0, "IV": 0, "V": 0.45, "vi": 0, "viio": 0.23},
+    "iii": {"I": 0, "ii": 0.2, "iii": 0.05, "IV": 0.25, "V": 0, "vi": 0.4, "viio": 0},
+    "IV": {"I": 0.24, "ii": 0.12, "iii": 0, "IV": 0.1, "V": 0.29, "vi": 0, "viio": 0.18},
+    "V": {"I": 0.67, "ii": 0, "iii": 0, "IV": 0, "V": 0.15, "vi": 0.11, "viio": 0},
+    "vi": {"I": 0.11, "ii": 0.22, "iii": 0, "IV": 0.18, "V": 0.21, "vi": 0.1, "viio": 0.11},
     "viio": {"I": 0.81, "ii": 0, "iii": 0, "IV": 0, "V": 0.06, "vi": 0, "viio": 0},
 }
 
 
-def createtree(melody, chords):
+def createtree(melody, chords, equalProb=False):
 
     chordlist = [] # a list of lists x, where x_i is all the chords that can go with melody note i. start/end on tonic
     # melodyNums = []
@@ -63,21 +73,28 @@ def createtree(melody, chords):
     # print('after')
     # print(transitions)
 
+    def nextchord(transitions):
+        total_probability = sum([p for (c1, c2, p) in transitions])
+        random_number = random.uniform(0, total_probability)
+        for (c1, c2, p) in transitions:
+            random_number -= p
+            if random_number <= 0:
+                return c2
 
     # construct a complete path by choosing transitions at random
     path = [chordlist[0][0]]
     for i in range(len(transitions)):
         # print('path: ' + str(path))
         # print('trans: ' + str(transitions[i]))
-        chordchoices = [t[1] for t in transitions[i] if t[0] == path[i]]
-        # print(chordchoices)
-        path.append(chordchoices[random.randint(0,len(chordchoices)-1)])
+        if equalProb:
+            # this one will choose a random next chord with equal probability for each
+            chordchoices = [t[1] for t in transitions[i] if t[0] == path[i]]
+            path.append(chordchoices[random.randint(0,len(chordchoices)-1)])
+        else:
+            # this one will choose a random next chord based on the probabilities from the table
+            path.append(nextchord(transitions[i]))
     
     return(path)
-
-
-
-
 
 if __name__ == "__main__":
 
