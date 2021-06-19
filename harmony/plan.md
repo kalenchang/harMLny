@@ -125,3 +125,6 @@ fig. 1
 3^n sequences
 3^2 * (n-1) transitions
 ```
+
+6/18/21
+- 
